@@ -207,7 +207,7 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
             ],
           ),
           const SizedBox(
-            height: 8,
+            height: 16,
           ),
           Container(
             clipBehavior: Clip.antiAlias,
@@ -215,8 +215,9 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
               shape: StadiumBorder(),
             ),
             child: LinearProgressIndicator(
-              minHeight: 10,
+              minHeight: 4,
               value: _value ?? 0,
+              valueColor: const AlwaysStoppedAnimation(CupertinoColors.systemRed),
             ),
           ),
           const SizedBox(
