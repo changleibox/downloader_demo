@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:downloader/downloader.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -57,24 +58,30 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
   }
 
   void _setProgress([int? count, int? total]) {
-    _safeSetState(() {
+    _setStateIfMounted(() {
       _count = count;
       _total = total;
     });
   }
 
   void _onCancel() {
-    _safeSetState(() {
+    _setStateIfMounted(() {
       _cancelToken?.cancel();
       _cancelToken = null;
     });
   }
 
-  void _safeSetState(VoidCallback callback) {
+  void _setStateIfMounted(VoidCallback callback) {
     if (!mounted) {
       return;
     }
-    setState(callback);
+    if (SchedulerBinding.instance!.schedulerPhase == SchedulerPhase.idle) {
+      setState(callback);
+    } else {
+      SchedulerBinding.instance!.addPostFrameCallback((Duration timestamp) {
+        setState(callback);
+      });
+    }
   }
 
   String? get _message {
