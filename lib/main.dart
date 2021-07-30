@@ -29,6 +29,9 @@ class DemoApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const CupertinoApp(
       title: 'Downloader Demo',
+      theme: CupertinoThemeData(
+        scaffoldBackgroundColor: CupertinoColors.systemGroupedBackground,
+      ),
       home: HomePage(
         title: '下载管理器',
       ),
