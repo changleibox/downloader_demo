@@ -2,6 +2,8 @@
  * Copyright (c) 2021 CHANGLEI. All rights reserved.
  */
 
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:downloader/downloader.dart';
 import 'package:flutter/cupertino.dart';
@@ -44,11 +46,19 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
     try {
       final timestamp = DateTime.now().microsecondsSinceEpoch;
       final directory = await getTemporaryDirectory();
+      final savePath = join(directory.path, '$timestamp.mp4');
+      final target = File(savePath);
       await Downloader.asFile(
         widget.url,
-        join(directory.path, '$timestamp.mp4'),
+        savePath,
         cancelToken: _cancelToken,
         onReceiveProgress: _setProgress,
+        onHeaders: (value) {
+          if (target.existsSync() || !value.isDownload) {
+            return;
+          }
+          _cancelToken?.cancel();
+        },
       );
     } finally {
       await Future<void>.delayed(_delayedDuration);
