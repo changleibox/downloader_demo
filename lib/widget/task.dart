@@ -41,18 +41,20 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
     _setProgress(0, 0);
     try {
       _cancelToken?.cancel();
-      _cancelToken = CancelToken();
-      final directory = await getTemporaryDirectory();
+      _cancelToken = null;
       final timestamp = DateTime.now().microsecondsSinceEpoch;
+      final directory = await getTemporaryDirectory();
       await Downloader.asFile(
         widget.url,
-        join(directory.path, '$timestamp.mp4'),
-        cancelToken: _cancelToken,
+        (Headers headers) async {
+          return join(directory.path, '$timestamp.mp4');
+        },
+        cancelToken: _cancelToken ??= CancelToken(),
         onReceiveProgress: _setProgress,
       );
-      _cancelToken = null;
     } finally {
       await Future<void>.delayed(_delayedDuration);
+      _cancelToken = null;
       _setProgress();
     }
   }
@@ -78,7 +80,7 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
     if (SchedulerBinding.instance!.schedulerPhase == SchedulerPhase.idle) {
       setState(callback);
     } else {
-      SchedulerBinding.instance!.addPostFrameCallback((Duration timestamp) {
+      SchedulerBinding.instance!.addPostFrameCallback((timestamp) {
         setState(callback);
       });
     }
