@@ -131,30 +131,14 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
     super.build(context);
     Widget trailing;
     if (_cancelToken == null) {
-      trailing = CupertinoButton(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 2,
-        ),
-        minSize: 0,
-        onPressed: _cancelToken == null ? _onDownload : null,
-        child: const Icon(
-          CupertinoIcons.play_arrow_solid,
-          size: 16,
-        ),
+      trailing = _Button(
+        onPressed: _onDownload,
+        child: const Icon(CupertinoIcons.play_arrow_solid),
       );
     } else {
-      trailing = CupertinoButton(
-        padding: const EdgeInsets.symmetric(
-          horizontal: 4,
-          vertical: 2,
-        ),
-        minSize: 0,
-        onPressed: _cancelToken == null ? null : _onCancel,
-        child: const Icon(
-          CupertinoIcons.clear,
-          size: 16,
-        ),
+      trailing = _Button(
+        onPressed: _onCancel,
+        child: const Icon(CupertinoIcons.clear),
       );
     }
     return Container(
@@ -216,8 +200,10 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
             ),
             child: LinearProgressIndicator(
               minHeight: 4,
-              value: _value ?? 0,
-              valueColor: const AlwaysStoppedAnimation(CupertinoColors.systemRed),
+              value: _value == 0 ? null : (_value ?? 0),
+              valueColor: const AlwaysStoppedAnimation(
+                CupertinoColors.systemRed,
+              ),
             ),
           ),
           const SizedBox(
@@ -237,6 +223,35 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _Button extends StatelessWidget {
+  const _Button({
+    Key? key,
+    required this.child,
+    this.onPressed,
+  }) : super(key: key);
+
+  final Widget child;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return CupertinoButton(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 4,
+        vertical: 2,
+      ),
+      minSize: 0,
+      onPressed: onPressed,
+      child: IconTheme.merge(
+        data: const IconThemeData(
+          size: 16,
+        ),
+        child: child,
       ),
     );
   }
