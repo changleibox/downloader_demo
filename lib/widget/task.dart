@@ -38,18 +38,16 @@ class _TaskState extends State<Task> with AutomaticKeepAliveClientMixin<Task> {
   int? _total;
 
   Future<void> _onDownload() async {
+    _cancelToken?.cancel();
+    _cancelToken = CancelToken();
     _setProgress(0, 0);
     try {
-      _cancelToken?.cancel();
-      _cancelToken = null;
       final timestamp = DateTime.now().microsecondsSinceEpoch;
       final directory = await getTemporaryDirectory();
       await Downloader.asFile(
         widget.url,
-        (Headers headers) async {
-          return join(directory.path, '$timestamp.mp4');
-        },
-        cancelToken: _cancelToken ??= CancelToken(),
+        join(directory.path, '$timestamp.mp4'),
+        cancelToken: _cancelToken,
         onReceiveProgress: _setProgress,
       );
     } finally {
